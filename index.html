@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Voxara — Nigerian Consumer Research, On Demand</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #080b0f;
+      --dark: #0f1318;
+      --card: #141920;
+      --border: #1e2730;
+      --teal: #00e5c0;
+      --teal-dim: rgba(0,229,192,0.12);
+      --teal-glow: rgba(0,229,192,0.25);
+      --white: #f0f4f8;
+      --muted: #6b7c93;
+      --font-head: 'Syne', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* NOISE TEXTURE */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 48px;
+      background: rgba(8,11,15,0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      font-family: var(--font-head);
+      font-weight: 800;
+      font-size: 1.4rem;
+      letter-spacing: -0.02em;
+      color: var(--white);
+    }
+
+    .logo span { color: var(--teal); }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--white); }
+
+    .nav-cta {
+      background: var(--teal);
+      color: var(--black) !important;
+      padding: 9px 20px;
+      border-radius: 6px;
+      font-weight: 600 !important;
+      font-size: 0.88rem !important;
+      transition: opacity 0.2s !important;
+    }
+
+    .nav-cta:hover { opacity: 0.85; }
+
+    /* HERO */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 140px 24px 80px;
+      overflow: hidden;
+    }
+
+    .hero-glow {
+      position: absolute;
+      top: 20%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 700px;
+      height: 400px;
+      background: radial-gradient(ellipse, rgba(0,229,192,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--teal-dim);
+      border: 1px solid rgba(0,229,192,0.3);
+      border-radius: 100px;
+      padding: 6px 16px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--teal);
+      margin-bottom: 32px;
+      animation: fadeUp 0.6s ease forwards;
+      opacity: 0;
+    }
+
+    .badge-dot {
+      width: 6px; height: 6px;
+      background: var(--teal);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    h1 {
+      font-family: var(--font-head);
+      font-size: clamp(2.8rem, 7vw, 5.5rem);
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      max-width: 820px;
+      animation: fadeUp 0.7s 0.1s ease forwards;
+      opacity: 0;
+    }
+
+    h1 em {
+      font-style: normal;
+      color: var(--teal);
+    }
+
+    .hero-sub {
+      margin-top: 24px;
+      font-size: 1.15rem;
+      color: var(--muted);
+      max-width: 520px;
+      font-weight: 300;
+      line-height: 1.7;
+      animation: fadeUp 0.7s 0.2s ease forwards;
+      opacity: 0;
+    }
+
+    .hero-ctas {
+      display: flex;
+      gap: 16px;
+      margin-top: 48px;
+      flex-wrap: wrap;
+      justify-content: center;
+      animation: fadeUp 0.7s 0.3s ease forwards;
+      opacity: 0;
+    }
+
+    .btn-primary {
+      background: var(--teal);
+      color: var(--black);
+      border: none;
+      padding: 15px 32px;
+      border-radius: 8px;
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px var(--teal-glow);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--white);
+      border: 1px solid var(--border);
+      padding: 15px 32px;
+      border-radius: 8px;
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-outline:hover {
+      border-color: var(--teal);
+      background: var(--teal-dim);
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 48px;
+      margin-top: 80px;
+      padding-top: 48px;
+      border-top: 1px solid var(--border);
+      animation: fadeUp 0.7s 0.4s ease forwards;
+      opacity: 0;
+    }
+
+    .stat-item { text-align: center; }
+
+    .stat-num {
+      font-family: var(--font-head);
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--teal);
+      display: block;
+    }
+
+    .stat-label {
+      font-size: 0.82rem;
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* SECTION */
+    section {
+      padding: 100px 24px;
+      max-width: 1100px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .section-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-family: var(--font-head);
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      max-width: 560px;
+    }
+
+    .section-sub {
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 1rem;
+      max-width: 480px;
+      font-weight: 300;
+    }
+
+    /* HOW IT WORKS */
+    .how-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-top: 64px;
+    }
+
+    .how-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 40px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s;
+    }
+
+    .how-card:hover { border-color: rgba(0,229,192,0.3); }
+
+    .how-card::before {
+      content: '';
+      position: absolute;
+      top: 0; right: 0;
+      width: 200px; height: 200px;
+      background: radial-gradient(circle, var(--teal-dim) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .card-num {
+      font-family: var(--font-head);
+      font-size: 3.5rem;
+      font-weight: 800;
+      color: var(--border);
+      line-height: 1;
+      margin-bottom: 24px;
+    }
+
+    .card-title {
+      font-family: var(--font-head);
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .card-desc {
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.7;
+      font-weight: 300;
+    }
+
+    /* FOR WHO */
+    .audience-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-top: 64px;
+    }
+
+    .audience-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 48px 40px;
+      transition: transform 0.3s, border-color 0.3s;
+    }
+
+    .audience-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(0,229,192,0.3);
+    }
+
+    .audience-icon {
+      width: 48px; height: 48px;
+      background: var(--teal-dim);
+      border: 1px solid rgba(0,229,192,0.2);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      margin-bottom: 24px;
+    }
+
+    .audience-title {
+      font-family: var(--font-head);
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .audience-desc {
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.7;
+      margin-bottom: 32px;
+      font-weight: 300;
+    }
+
+    .audience-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 36px;
+    }
+
+    .audience-list li {
+      font-size: 0.88rem;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .audience-list li::before {
+      content: '→';
+      color: var(--teal);
+      font-size: 0.8rem;
+    }
+
+    /* WAITLIST SECTION */
+    .waitlist-wrap {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 80px 60px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .waitlist-wrap::before {
+      content: '';
+      position: absolute;
+      bottom: -100px; left: 50%;
+      transform: translateX(-50%);
+      width: 600px; height: 300px;
+      background: radial-gradient(ellipse, var(--teal-dim) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .waitlist-wrap .section-title { max-width: 100%; }
+
+    .waitlist-tabs {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 40px;
+      margin-bottom: 32px;
+    }
+
+    .tab-btn {
+      padding: 10px 28px;
+      border-radius: 8px;
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+    }
+
+    .tab-btn.active {
+      background: var(--teal);
+      color: var(--black);
+      border-color: var(--teal);
+      font-weight: 600;
+    }
+
+    .waitlist-form {
+      display: none;
+      flex-direction: column;
+      gap: 16px;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    .waitlist-form.active { display: flex; }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .form-input {
+      background: var(--dark);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 18px;
+      color: var(--white);
+      font-family: var(--font-body);
+      font-size: 0.92rem;
+      outline: none;
+      transition: border-color 0.2s;
+      width: 100%;
+    }
+
+    .form-input:focus { border-color: var(--teal); }
+    .form-input::placeholder { color: var(--muted); }
+
+    select.form-input option { background: var(--dark); }
+
+    .form-submit {
+      background: var(--teal);
+      color: var(--black);
+      border: none;
+      padding: 15px;
+      border-radius: 8px;
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+
+    .form-submit:hover {
+      opacity: 0.88;
+      transform: translateY(-1px);
+    }
+
+    .success-msg {
+      display: none;
+      background: var(--teal-dim);
+      border: 1px solid rgba(0,229,192,0.3);
+      border-radius: 12px;
+      padding: 24px;
+      color: var(--teal);
+      font-weight: 500;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 40px 48px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .footer-copy {
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 24px;
+    }
+
+    .footer-links a {
+      font-size: 0.82rem;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover { color: var(--white); }
+
+    /* SCROLL REVEAL */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      nav { padding: 16px 20px; }
+      .nav-links { display: none; }
+      .how-grid, .audience-grid { grid-template-columns: 1fr; }
+      .hero-stats { gap: 24px; flex-wrap: wrap; justify-content: center; }
+      .waitlist-wrap { padding: 48px 24px; }
+      .form-row { grid-template-columns: 1fr; }
+      footer { flex-direction: column; gap: 16px; text-align: center; }
+      .footer-links { flex-wrap: wrap; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="logo">Vox<span>ara</span></div>
+    <ul class="nav-links">
+      <li><a href="#how">How it works</a></li>
+      <li><a href="#audience">Who it's for</a></li>
+      <li><a href="#waitlist" class="nav-cta">Join Waitlist</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-glow"></div>
+
+    <div class="hero-badge">
+      <span class="badge-dot"></span>
+      Now accepting early access signups
+    </div>
+
+    <h1>The <em>pulse</em> of the Nigerian consumer</h1>
+
+    <p class="hero-sub">
+      Voxara connects businesses with verified everyday Nigerians for fast, affordable consumer research — no agency delays, no inflated costs.
+    </p>
+
+    <div class="hero-ctas">
+      <a href="#waitlist" class="btn-primary">Run a Research Study →</a>
+      <a href="#waitlist" class="btn-outline">Get Paid to Participate</a>
+    </div>
+
+    <div class="hero-stats">
+      <div class="stat-item">
+        <span class="stat-num">5–7</span>
+        <span class="stat-label">Day turnaround</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num">36</span>
+        <span class="stat-label">States covered</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num">10x</span>
+        <span class="stat-label">Cheaper than agencies</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <section id="how">
+    <div class="reveal">
+      <p class="section-label">How it works</p>
+      <h2 class="section-title">Research that actually moves fast</h2>
+      <p class="section-sub">From study brief to delivered insights in days, not months.</p>
+    </div>
+
+    <div class="how-grid">
+      <div class="how-card reveal">
+        <div class="card-num">01</div>
+        <div class="card-title">Tell us what you need</div>
+        <p class="card-desc">Define your target audience — age, location, income level, profession. We match your study to the right Nigerians from our verified panel.</p>
+      </div>
+      <div class="how-card reveal">
+        <div class="card-num">02</div>
+        <div class="card-title">We run your study</div>
+        <p class="card-desc">Surveys, video responses, usability tests, diary studies — participants complete tasks on their phones and submit results directly.</p>
+      </div>
+      <div class="how-card reveal">
+        <div class="card-num">03</div>
+        <div class="card-title">You get real insights</div>
+        <p class="card-desc">Receive a clean, organized report with responses, video clips, and key takeaways. No fluff, no filler — just what you can act on.</p>
+      </div>
+      <div class="how-card reveal">
+        <div class="card-num">04</div>
+        <div class="card-title">Participants get paid</div>
+        <p class="card-desc">Every Nigerian who completes a study gets paid directly to their bank account or mobile wallet. Fast, reliable, no delays.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOR WHO -->
+  <section id="audience" style="padding-top: 0;">
+    <div class="reveal">
+      <p class="section-label">Who it's for</p>
+      <h2 class="section-title">Two sides. One platform.</h2>
+    </div>
+
+    <div class="audience-grid">
+      <div class="audience-card reveal">
+        <div class="audience-icon">🏢</div>
+        <div class="audience-title">For Companies & Researchers</div>
+        <p class="audience-desc">Get verified consumer insights from real Nigerians without the agency overhead or the waiting.</p>
+        <ul class="audience-list">
+          <li>Startups & fintechs needing user feedback</li>
+          <li>FMCG brands testing new products</li>
+          <li>International companies entering Nigeria</li>
+          <li>Agencies running research for clients</li>
+          <li>NGOs and development organizations</li>
+        </ul>
+        <a href="#waitlist" class="btn-primary">Start a Study →</a>
+      </div>
+
+      <div class="audience-card reveal">
+        <div class="audience-icon">🇳🇬</div>
+        <div class="audience-title">For Nigerian Participants</div>
+        <p class="audience-desc">Get paid to share your opinions. No special skills needed — just your honest perspective as a Nigerian consumer.</p>
+        <ul class="audience-list">
+          <li>Complete short surveys & tasks</li>
+          <li>Record quick video responses</li>
+          <li>Test apps and give feedback</li>
+          <li>Participate from anywhere in Nigeria</li>
+          <li>Get paid directly to your bank account</li>
+        </ul>
+        <a href="#waitlist" class="btn-outline">Join the Panel →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- WAITLIST -->
+  <section id="waitlist">
+    <div class="waitlist-wrap reveal">
+      <p class="section-label">Early Access</p>
+      <h2 class="section-title">Be first on the platform</h2>
+      <p class="section-sub" style="max-width: 100%; margin: 12px auto 0;">Sign up now and get priority access when Voxara launches. Companies get their first study at a special rate. Participants go to the top of the queue.</p>
+
+      <div class="waitlist-tabs">
+        <button class="tab-btn active" onclick="switchTab('company')">I'm a Company</button>
+        <button class="tab-btn" onclick="switchTab('participant')">I'm a Participant</button>
+      </div>
+
+      <!-- Company Form -->
+      <div class="waitlist-form active" id="form-company">
+        <div class="form-row">
+          <input type="text" class="form-input" placeholder="First name" required />
+          <input type="text" class="form-input" placeholder="Last name" required />
+        </div>
+        <input type="email" class="form-input" placeholder="Work email address" required />
+        <input type="text" class="form-input" placeholder="Company name" required />
+        <select class="form-input">
+          <option value="" disabled selected>What type of research do you need?</option>
+          <option>User experience / product feedback</option>
+          <option>Brand & market research</option>
+          <option>Consumer behavior study</option>
+          <option>Concept or ad testing</option>
+          <option>Other</option>
+        </select>
+        <button class="form-submit" onclick="handleSubmit('company')">Request Early Access →</button>
+      </div>
+
+      <!-- Participant Form -->
+      <div class="waitlist-form" id="form-participant">
+        <div class="form-row">
+          <input type="text" class="form-input" placeholder="First name" required />
+          <input type="text" class="form-input" placeholder="Last name" required />
+        </div>
+        <input type="email" class="form-input" placeholder="Email address" required />
+        <input type="tel" class="form-input" placeholder="Phone number" required />
+        <div class="form-row">
+          <select class="form-input">
+            <option value="" disabled selected>State</option>
+            <option>Lagos</option><option>Abuja (FCT)</option><option>Rivers</option>
+            <option>Kano</option><option>Oyo</option><option>Delta</option>
+            <option>Anambra</option><option>Enugu</option><option>Other</option>
+          </select>
+          <select class="form-input">
+            <option value="" disabled selected>Occupation</option>
+            <option>Student</option><option>Employed (private)</option>
+            <option>Civil servant</option><option>Business owner</option>
+            <option>Freelancer</option><option>Other</option>
+          </select>
+        </div>
+        <button class="form-submit" onclick="handleSubmit('participant')">Join the Panel →</button>
+      </div>
+
+      <div class="success-msg" id="success-company">
+        ✓ You're on the list. We'll reach out soon with your early access details.
+      </div>
+      <div class="success-msg" id="success-participant">
+        ✓ Welcome to the Voxara panel. We'll notify you as soon as studies are available in your area.
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="logo">Vox<span>ara</span></div>
+    <p class="footer-copy">© 2025 Voxara. All rights reserved.</p>
+    <div class="footer-links">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Use</a>
+      <a href="mailto:hello@voxara.ng">hello@voxara.ng</a>
+    </div>
+  </footer>
+
+  <script>
+    // TAB SWITCHING
+    function switchTab(type) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.waitlist-form').forEach(f => f.classList.remove('active'));
+      document.querySelectorAll('.success-msg').forEach(m => m.style.display = 'none');
+      event.target.classList.add('active');
+      document.getElementById('form-' + type).classList.add('active');
+    }
+
+    // FORM SUBMIT
+    function handleSubmit(type) {
+      const form = document.getElementById('form-' + type);
+      const inputs = form.querySelectorAll('input[required]');
+      let valid = true;
+      inputs.forEach(i => { if (!i.value.trim()) { valid = false; i.style.borderColor = '#ff4d4d'; } else { i.style.borderColor = ''; } });
+      if (!valid) return;
+      form.style.display = 'none';
+      const msg = document.getElementById('success-' + type);
+      msg.style.display = 'block';
+    }
+
+    // SCROLL REVEAL
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>
