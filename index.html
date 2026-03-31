@@ -716,12 +716,12 @@
       <!-- Company Form -->
       <div class="waitlist-form active" id="form-company">
         <div class="form-row">
-          <input type="text" class="form-input" placeholder="First name" required />
-          <input type="text" class="form-input" placeholder="Last name" required />
+          <input type="text" id="company-firstname" class="form-input" placeholder="First name" required />
+          <input type="text" id="company-lastname" class="form-input" placeholder="Last name" required />
         </div>
-        <input type="email" class="form-input" placeholder="Work email address" required />
-        <input type="text" class="form-input" placeholder="Company name" required />
-        <select class="form-input">
+        <input type="email" id="company-email" class="form-input" placeholder="Work email address" required />
+        <input type="text" id="company-name" class="form-input" placeholder="Company name" required />
+        <select id="company-research" class="form-input">
           <option value="" disabled selected>What type of research do you need?</option>
           <option>User experience / product feedback</option>
           <option>Brand & market research</option>
@@ -735,19 +735,19 @@
       <!-- Participant Form -->
       <div class="waitlist-form" id="form-participant">
         <div class="form-row">
-          <input type="text" class="form-input" placeholder="First name" required />
-          <input type="text" class="form-input" placeholder="Last name" required />
+          <input type="text" id="part-firstname" class="form-input" placeholder="First name" required />
+          <input type="text" id="part-lastname" class="form-input" placeholder="Last name" required />
         </div>
-        <input type="email" class="form-input" placeholder="Email address" required />
-        <input type="tel" class="form-input" placeholder="Phone number" required />
+        <input type="email" id="part-email" class="form-input" placeholder="Email address" required />
+        <input type="tel" id="part-phone" class="form-input" placeholder="Phone number" required />
         <div class="form-row">
-          <select class="form-input">
+          <select id="part-state" class="form-input">
             <option value="" disabled selected>State</option>
             <option>Lagos</option><option>Abuja (FCT)</option><option>Rivers</option>
             <option>Kano</option><option>Oyo</option><option>Delta</option>
             <option>Anambra</option><option>Enugu</option><option>Other</option>
           </select>
-          <select class="form-input">
+          <select id="part-occupation" class="form-input">
             <option value="" disabled selected>Occupation</option>
             <option>Student</option><option>Employed (private)</option>
             <option>Civil servant</option><option>Business owner</option>
@@ -773,11 +773,11 @@
     <div class="footer-links">
       <a href="#">Privacy Policy</a>
       <a href="#">Terms of Use</a>
-      <a href="mailto:hello@voxara.ng">hello@voxara.ng</a>
+      <a href="/cdn-cgi/l/email-protection#ed8588818182ad9b82958c9f8cc3838a"><span class="__cf_email__" data-cfemail="8fe7eae3e3e0cff9e0f7eefdeea1e1e8">[email&#160;protected]</span></a>
     </div>
   </footer>
 
-  <script>
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
     // TAB SWITCHING
     function switchTab(type) {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -788,23 +788,63 @@
     }
 
     // FORM SUBMIT
-    function handleSubmit(type) {
+    async function handleSubmit(type) {
       const form = document.getElementById('form-' + type);
       const inputs = form.querySelectorAll('input[required]');
       let valid = true;
       inputs.forEach(i => { if (!i.value.trim()) { valid = false; i.style.borderColor = '#ff4d4d'; } else { i.style.borderColor = ''; } });
       if (!valid) return;
-      form.style.display = 'none';
-      const msg = document.getElementById('success-' + type);
-      msg.style.display = 'block';
+
+      const btn = form.querySelector('.form-submit');
+      btn.textContent = 'Submitting...';
+      btn.disabled = true;
+
+      let data = {};
+      let endpoint = '';
+
+      if (type === 'company') {
+        endpoint = 'https://formspree.io/f/xbdpywey';
+        data = {
+          first_name: document.getElementById('company-firstname').value,
+          last_name: document.getElementById('company-lastname').value,
+          email: document.getElementById('company-email').value,
+          company: document.getElementById('company-name').value,
+          research_type: document.getElementById('company-research').value,
+        };
+      } else {
+        endpoint = 'https://formspree.io/f/maqljvzl';
+        data = {
+          first_name: document.getElementById('part-firstname').value,
+          last_name: document.getElementById('part-lastname').value,
+          email: document.getElementById('part-email').value,
+          phone: document.getElementById('part-phone').value,
+          state: document.getElementById('part-state').value,
+          occupation: document.getElementById('part-occupation').value,
+        };
+      }
+
+      try {
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        if (res.ok) {
+          form.style.display = 'none';
+          const msg = document.getElementById('success-' + type);
+          msg.style.display = 'block';
+        } else {
+          btn.textContent = type === 'company' ? 'Request Early Access →' : 'Join the Panel →';
+          btn.disabled = false;
+          alert('Something went wrong. Please try again.');
+        }
+      } catch (err) {
+        btn.textContent = type === 'company' ? 'Request Early Access →' : 'Join the Panel →';
+        btn.disabled = false;
+        alert('Network error. Please check your connection and try again.');
+      }
     }
 
     // SCROLL REVEAL
     const observer = new IntersectionObserver((entries) => {
-      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
-    }, { threshold: 0.1 });
-
-    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-  </script>
-</body>
-</html>
+      entries.forEach(e 
